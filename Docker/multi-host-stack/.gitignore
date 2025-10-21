@@ -1,0 +1,28 @@
+# Environment files with sensitive data
+.env
+*.env
+!.env.example
+
+# Logs
+*.log
+
+# Docker volumes
+data/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Backup files
+*.bak
+*.backup
+

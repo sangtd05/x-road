@@ -1,0 +1,89 @@
+# X-Road Security Server - Multi-Host Deployment
+# Deploy this on Security Server client machines
+
+version: '3.8'
+
+networks:
+  xroad-ss-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
+
+services:
+  # Security Server
+  ss:
+    build:
+      context: ../../securityserver
+      dockerfile: Dockerfile
+      args:
+        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-external}
+    container_name: ss
+    hostname: ss
+    environment:
+      - XROAD_TOKEN_PIN=${SS_TOKEN_PIN:-Secret1234}
+      - PROXY_JMX_PORT=4399
+      - SIGNER_JMX_PORT=4398
+    networks:
+      xroad-ss-net:
+        ipv4_address: 172.31.0.10
+    ports:
+      - "4000:4000"   # Web UI (HTTPS)
+      - "8080:8080"   # Proxy HTTP
+      - "8443:8443"   # Proxy HTTPS
+      - "5500:5500"   # Message exchange
+      - "5577:5577"   # OCSP
+    volumes:
+      - /etc/xroad/ss:/etc/xroad
+      - /var/lib/xroad/ss:/var/lib/xroad
+      - /var/lib/postgresql/ss:/var/lib/postgresql/16/main
+    extra_hosts:
+      # Configure these with the actual IP/hostname of your Central Server
+      - "cs:${CS_HOST:-172.30.0.10}"
+      - "testca:${CA_HOST:-172.30.0.30}"
+      - "issoap:${ISSOAP_HOST:-172.30.0.50}"
+      - "isrest:${ISREST_HOST:-172.30.0.60}"
+    healthcheck:
+      interval: 5s
+      retries: 40
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:4000"]
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          memory: 512M
+        limits:
+          memory: 2560M
+
+  # Setup/Initialization service (optional)
+  hurl:
+    build:
+      context: ../../../development/hurl
+      dockerfile: ./Dockerfile
+    container_name: hurl-setup
+    networks:
+      xroad-ss-net:
+    volumes:
+      - ./scenarios:/hurl-src/scenarios
+    extra_hosts:
+      - "cs:${CS_HOST:-172.30.0.10}"
+      - "ss:172.31.0.10"
+      - "testca:${CA_HOST:-172.30.0.30}"
+    depends_on:
+      ss:
+        condition: service_healthy
+    command: >
+      --insecure
+      --variables-file /hurl-src/scenarios/vars.env
+      --file-root /hurl-files
+      /hurl-src/scenarios/setup-security-server.hurl
+      --very-verbose
+      --retry 12
+      --retry-interval 10000
+    deploy:
+      resources:
+        reservations:
+          memory: 24M
+        limits:
+          memory: 128M
+
