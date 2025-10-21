@@ -11,7 +11,19 @@ echo ""
 # Check if .env file exists
 if [ ! -f .env ]; then
     echo "Error: .env file not found!"
-    echo "Please create .env file from .env.example"
+    echo ""
+    echo "Please create .env file with the following content:"
+    echo ""
+    cat << 'EOF'
+# X-Road Central Service Configuration
+PACKAGE_SOURCE=external
+CS_TOKEN_PIN=Secret1234
+SS0_TOKEN_PIN=Secret1234
+DIST=jammy-snapshot
+REPO=https://artifactory.niis.org/xroad-snapshot-deb
+EOF
+    echo ""
+    echo "Save this as .env file and run again."
     exit 1
 fi
 

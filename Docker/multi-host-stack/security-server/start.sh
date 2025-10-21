@@ -11,7 +11,23 @@ echo ""
 # Check if .env file exists
 if [ ! -f .env ]; then
     echo "Error: .env file not found!"
-    echo "Please create .env file and configure Central Server connection"
+    echo ""
+    echo "Please create .env file with the following content:"
+    echo ""
+    cat << 'EOF'
+# X-Road Security Server Configuration
+PACKAGE_SOURCE=external
+SS_TOKEN_PIN=Secret1234
+CS_HOST=192.168.1.10
+CA_HOST=192.168.1.10
+ISSOAP_HOST=192.168.1.10
+ISREST_HOST=192.168.1.10
+DIST=jammy-snapshot
+REPO=https://artifactory.niis.org/xroad-snapshot-deb
+EOF
+    echo ""
+    echo "IMPORTANT: Update CS_HOST with actual Central Server IP!"
+    echo "Save this as .env file and run again."
     exit 1
 fi
 
