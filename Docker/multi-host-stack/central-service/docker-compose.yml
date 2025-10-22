@@ -1,8 +1,6 @@
 # X-Road Central Service - Multi-Host Deployment
 # Deploy this on the Central Server machine
 
-version: '3.8'
-
 networks:
   xroad-central-net:
     driver: bridge
@@ -16,11 +14,7 @@ volumes:
 services:
   # Central Server
   cs:
-    build:
-      context: ../../centralserver
-      dockerfile: Dockerfile
-      args:
-        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-external}
+    image: ghcr.io/nordic-institute/xrddev-central-server:latest
     container_name: cs
     hostname: cs
     environment:
@@ -50,11 +44,7 @@ services:
 
   # Management Security Server (runs on same machine as CS)
   ss0:
-    build:
-      context: ../../securityserver
-      dockerfile: Dockerfile
-      args:
-        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-external}
+    image: ghcr.io/nordic-institute/xrddev-security-server:latest
     container_name: ss0
     hostname: ss0
     environment:
@@ -91,9 +81,7 @@ services:
 
   # Test CA
   testca:
-    build:
-      context: ../../testca
-      dockerfile: Dockerfile
+    image: ghcr.io/nordic-institute/xrddev-testca:latest
     container_name: testca
     hostname: testca
     networks:
@@ -141,9 +129,7 @@ services:
 
   # Example SOAP Service
   issoap:
-    build:
-      context: ../../test-services/example-adapter
-      dockerfile: Dockerfile
+    image: niis/example-adapter:latest
     container_name: issoap
     hostname: issoap
     networks:

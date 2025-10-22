@@ -1,8 +1,6 @@
 # X-Road Security Server - Multi-Host Deployment
 # Deploy this on Security Server client machines
 
-version: '3.8'
-
 networks:
   xroad-ss-net:
     driver: bridge
@@ -13,11 +11,7 @@ networks:
 services:
   # Security Server
   ss:
-    build:
-      context: ../../securityserver
-      dockerfile: Dockerfile
-      args:
-        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-external}
+    image: ghcr.io/nordic-institute/xrddev-security-server:latest
     container_name: ss
     hostname: ss
     environment:
